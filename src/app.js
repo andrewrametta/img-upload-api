@@ -5,6 +5,7 @@ const cors = require("cors");
 const helmet = require("helmet");
 const { NODE_ENV } = require("./config");
 const imgsRouter = require("./components/imgs/imgs-router");
+const { cloudinary } = require("../utils/cloudinary");
 
 const app = express();
 
@@ -21,8 +22,19 @@ app.get("/", (req, res) => {
 
 app.use("/api/imgs", imgsRouter);
 
-app.post("/upload", (req, res) => {
-  return res.json({ status: "Ok" });
+app.post("/api/upload", async (req, res) => {
+  try {
+    const fileString = req.body.data;
+    const uploadResponse = await cloudinary.uploader.upload(fileString, {
+      upload_preset: "payitforward",
+    });
+    console.log(uploadResponse);
+    console.log(uploadResponse.url);
+    res.send(uploadResponse);
+    console.log(fileString);
+  } catch (error) {
+    console.error(error);
+  }
 });
 
 app.use(function errorHandler(error, req, res, next) {
